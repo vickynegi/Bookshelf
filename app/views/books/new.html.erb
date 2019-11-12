@@ -1,0 +1,16 @@
+<h1>Books#new</h1>
+<p>Find me in app/views/books/new.html.erb</p>
+<%= link_to 'List Books', books_path %>
+
+<%= simple_form_for @book, url: books_path, html: { multipart: true } do |f| %>
+  <%= f.input :title %>
+  <%= f.input :author %>
+  <%= f.input :isbn %>
+  <%= f.input :description, as: :text %>
+  <%= f.input :language %>
+  <%= f.file_field :cover_image %>
+
+  <%= f.button :submit, 'Create', class: 'btn btn-primary' %>
+
+<% end %>
+

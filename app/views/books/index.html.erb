@@ -1,0 +1,96 @@
+<h4><%= link_to 'Add Book', new_book_path, method: :get %> </h4>
+<input type="text" class="form-control input-sm m-b-xs" id="bookInput" placeholder="search by title or author or description" >
+
+<br>
+<center><h4>List of Books </h4></center>
+<table class="footable table table-stripped" id="bookTable" data-page-size="8">
+	<thead>
+		<tr>
+			<th>Title</th>
+			<th>Author</th>
+			<th>ISBN</th>
+			<th>Description</th>
+			<th>Language</th>
+			<th>Cover Image</th>
+			<th></th>
+		</tr>
+	</thead>
+    <tbody>
+		<% @books.each do |book| %>
+			<tr>
+				<td><%= book.title %></td>
+				<td><%= book.author %></td>
+				<td><%= book.isbn %></td>
+				<td><%= book.description %></td>
+				<td><%= book.language %></td>
+				<td><%= image_tag book.cover_image.url, :size => "50x30" %> </td>
+				<td><%= link_to 'Edit', edit_book_path(book.id), class: 'btn btn-primary', method: :get %> &nbsp;
+					<%= link_to 'Delete', book_path(book.id), class: 'btn btn-danger', method: :DELETE %>
+				</td>
+			</tr>
+		<% end %>
+    </tbody>
+</table>
+
+<script type="text/javascript">
+	$('input#bookInput').keyup(function(){
+		if (this.value.length <= 2) return;
+		var reqData = {};
+        reqData.search = this.value;
+        var $a = $.ajax({
+           type: 'POST',
+           url: '<%= books_search_book_path() %>',
+           data: reqData
+        });
+        $a.then(function(data, textStatus, jqXHR){
+        	show_books_data(data, jqXHR)
+        });
+	});
+
+	function delete_book(book_id, book_ids){
+		alert(book_id)
+		var reqData = {};
+        reqData.id = book_id
+        reqData.book_ids = book_ids
+		var $a = $.ajax({
+           type: 'POST',
+           url: '<%= books_book_delete_path() %>',
+           data: reqData
+        });
+        $a.then(function(data, textStatus, jqXHR){
+        	show_books_data(data, jqXHR)
+		});
+	}
+
+	function show_books_data(data, jqXHR){
+		var search_suggestions = JSON.parse(jqXHR.responseText).books_data;
+        var table = document.getElementById('bookTable');
+        if (search_suggestions == ""){
+           $('table#bookTable').find("tr:gt(0)").remove();
+           		row = table.insertRow(1);
+	            x = row.insertCell(0);
+	            x.innerHTML = 'No data';
+        }
+        else{
+        	$('table#bookTable').find("tr:gt(0)").remove();
+        	var book_ids = data['book_ids'];
+        	$.each(search_suggestions, function(index, value){
+	            row = table.insertRow(1);
+	            x = row.insertCell(0);
+	            x.innerHTML = value['title'];
+	            x = row.insertCell(1);
+	            x.innerHTML = value['author'];
+	            x = row.insertCell(2);
+	            x.innerHTML = value['isbn'];
+	            x = row.insertCell(3);
+	            x.innerHTML = value['description'];
+	            x = row.insertCell(4);
+	            x.innerHTML = value['language'];
+	            x = row.insertCell(5);
+	            x.innerHTML = '<img src="'+value['cover_image_url']+'" widht="50" height="30" ></img>';
+	            x = row.insertCell(6);
+	            x.innerHTML = '<a class="btn btn-primary" data-method="get" href="/books/'+value['id']+'/edit">Edit </a>  &nbsp; <button class="btn btn-danger" onclick="delete_book('+value['id']+', ['+book_ids+'])">Delete</buton> '
+		    });
+		}
+	}
+</script>

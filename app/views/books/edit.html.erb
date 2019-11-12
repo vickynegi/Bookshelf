@@ -1,0 +1,14 @@
+<h1>Edit Book</h1>
+<br>
+<%= link_to 'List Books', books_path %>
+<br>
+<%= simple_form_for @book, url: book_path do |form| %>
+  <%= form.input :title %>
+  <%= form.input :author %>
+  <%= form.input :isbn %>
+  <%= form.input :description %>
+  <%= form.input :language %>
+  <%= form.input :cover_image, as: :file %>
+  <!-- # form.object.cover_image.original_filename -->
+  <%= form.button :submit, "Update", class: 'btn btn-primary' %>
+<% end %>
